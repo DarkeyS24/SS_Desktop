@@ -31,6 +31,8 @@
             components = new System.ComponentModel.Container();
             tabControl = new TabControl();
             details = new TabPage();
+            label16 = new Label();
+            areaCb = new ComboBox();
             descTxt = new RichTextBox();
             rulesTxt = new RichTextBox();
             label13 = new Label();
@@ -75,8 +77,6 @@
             finishBtn = new Button();
             amenityBindingSource = new BindingSource(components);
             cancelBtn = new Button();
-            label16 = new Label();
-            areaCb = new ComboBox();
             tabControl.SuspendLayout();
             details.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bedsNumber).BeginInit();
@@ -141,6 +141,23 @@
             details.Size = new Size(907, 478);
             details.TabIndex = 0;
             details.Text = "Listing Details";
+            // 
+            // label16
+            // 
+            label16.AutoSize = true;
+            label16.Location = new Point(632, 22);
+            label16.Name = "label16";
+            label16.Size = new Size(69, 33);
+            label16.TabIndex = 27;
+            label16.Text = "Area";
+            // 
+            // areaCb
+            // 
+            areaCb.FormattingEnabled = true;
+            areaCb.Location = new Point(705, 19);
+            areaCb.Name = "areaCb";
+            areaCb.Size = new Size(188, 41);
+            areaCb.TabIndex = 26;
             // 
             // descTxt
             // 
@@ -301,6 +318,7 @@
             // maximumNumber
             // 
             maximumNumber.Location = new Point(782, 430);
+            maximumNumber.Maximum = new decimal(new int[] { 10001, 0, 0, 0 });
             maximumNumber.Name = "maximumNumber";
             maximumNumber.Size = new Size(74, 39);
             maximumNumber.TabIndex = 7;
@@ -308,6 +326,7 @@
             // minimumNumber
             // 
             minimumNumber.Location = new Point(507, 430);
+            minimumNumber.Maximum = new decimal(new int[] { 10001, 0, 0, 0 });
             minimumNumber.Name = "minimumNumber";
             minimumNumber.Size = new Size(74, 39);
             minimumNumber.TabIndex = 6;
@@ -315,6 +334,7 @@
             // capacityNumber
             // 
             capacityNumber.Location = new Point(149, 89);
+            capacityNumber.Maximum = new decimal(new int[] { 10001, 0, 0, 0 });
             capacityNumber.Name = "capacityNumber";
             capacityNumber.Size = new Size(74, 39);
             capacityNumber.TabIndex = 5;
@@ -533,23 +553,6 @@
             cancelBtn.Text = "Cancel";
             cancelBtn.UseVisualStyleBackColor = false;
             cancelBtn.Click += cancelBtn_Click;
-            // 
-            // label16
-            // 
-            label16.AutoSize = true;
-            label16.Location = new Point(632, 22);
-            label16.Name = "label16";
-            label16.Size = new Size(69, 33);
-            label16.TabIndex = 27;
-            label16.Text = "Area";
-            // 
-            // areaCb
-            // 
-            areaCb.FormattingEnabled = true;
-            areaCb.Location = new Point(705, 19);
-            areaCb.Name = "areaCb";
-            areaCb.Size = new Size(188, 41);
-            areaCb.TabIndex = 26;
             // 
             // AddEditView
             // 

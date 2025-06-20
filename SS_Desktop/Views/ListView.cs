@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.EntityFrameworkCore;
+using SS_Desktop.Libraries.Context;
 using SS_Desktop.Libraries.SignedIn;
 using SS_Desktop.Models;
 
@@ -67,7 +69,30 @@ namespace SS_Desktop.Views
         {
             if (e.ColumnIndex == 4)
             {
+                using (var context = new AppContextDb())
+                {
+                    var item = context.Items
+                        .Include(i => i.Area)
+                        .Include(i => i.ItemType)
+                        .FirstOrDefault(i => i.Title == dgvOwners.Rows[e.RowIndex].Cells[0].Value.ToString());
 
+                    Form form = this.Parent as Form;
+                    if (form != null)
+                    {
+                        LoginView login = form as LoginView;
+                        AddEditView addEdit = login.Controls.OfType<AddEditView>().FirstOrDefault();
+                        addEdit?.SetAction(1); // Set action to Edit
+                        addEdit?.SetNextBtnVisible(false); // Hide next button
+                        addEdit?.SetCancelBtnVisible(false); // Hide cancel button
+                        addEdit?.SetCloseBtnVisible(true); // Show close button
+                        addEdit?.SetFinishBtnVisible(false); // Hide finish button
+                        addEdit?.SetAttractions(item.Guid);
+                        addEdit?.setAmenities(item.Guid);
+                        addEdit?.SetEditFields(item);
+                        addEdit.Visible = true;
+                        this.Visible = false;
+                    }
+                }
             }
         }
 

@@ -31,8 +31,29 @@ namespace SS_Desktop.Views
             }
         }
 
+        public void SetEditFields(Item item)
+        {
+                            if (item != null)
+                            {
+                                titleTxt.Text = item.Title;
+                                capacityNumber.Value = item.Capacity;
+                                bedsNumber.Value = item.NumberOfBeds;
+                                bedroomsNumber.Value = item.NumberOfBedrooms;
+                                bathroomsNumber.Value = item.NumberOfBathrooms;
+                                approxTxt.Text = item.ApproximateAddress;
+                                exactTxt.Text = item.ExactAddress;
+                                descTxt.Text = item.Description;
+                                rulesTxt.Text = item.HostRules;
+                                minimumNumber.Value = item.MinimumNights;
+                                maximumNumber.Value = item.MaximumNights;
+                                typeCb.SelectedIndex = (int)item.ItemTypeId - 1; // Assuming ItemTypeId starts from 1
+                                areaCb.SelectedIndex = (int)item.AreaId - 1; // Assuming AreaId starts from 1
+                            }
+        }
+
         public void setAmenities(Guid? guid)
         {
+            dgvAmenities.Rows.Clear();
             using (var context = new AppContextDb())
             {
                 if(viewAction == 0)
@@ -48,8 +69,9 @@ namespace SS_Desktop.Views
                     var list = context.ItemAmenities.Include(a => a.Amenity).Include(a => a.Item).Where(a => a.Item.Guid == guid).ToList();
                     context.Amenities.ToList().ForEach(a =>
                     {
-                         bool isInList = list.Any(item => item.AmenityId == a.Id);
-                         dgvAmenities.Rows.Add(a.IconName, a.Name, isInList);
+                        Image icon = Image.FromFile($"C:/Users/angel_mata/source/repos/SS_Desktop/SS_Desktop/Images/PNG/16px/{a.IconName}");
+                        bool isInList = list.Any(item => item.AmenityId == a.Id);
+                         dgvAmenities.Rows.Add(icon, a.Name, isInList);
                     });
                 }
             }
@@ -57,6 +79,7 @@ namespace SS_Desktop.Views
 
         public void SetAttractions(Guid? guid)
         {
+            dgvAttractions.Rows.Clear();
             using (var context = new AppContextDb())
             {
                 if (viewAction == 0)
@@ -72,7 +95,14 @@ namespace SS_Desktop.Views
                     context.Attractions.Include(a => a.Area).ToList().ForEach(a =>
                     {
                         var item = list.FirstOrDefault(i => i.AttractionId == a.Id);
-                        dgvAttractions.Rows.Add(a.Name, a.Area.Name, (item.Distance != null || item.Distance <= 0)?0:item.Distance, (item.DurationOnFoot != null || item.DurationOnFoot <= 0) ? 0 : item.DurationOnFoot, (item.DurationByCar != null || item.DurationByCar <= 0) ? 0 : item.DurationByCar);
+                        if (item != null)
+                        {
+                            dgvAttractions.Rows.Add(a.Name, a.Area.Name, (item.Distance != null) ? 0 : item.Distance, (item.DurationOnFoot != null) ? 0 : item.DurationOnFoot, (item.DurationByCar != null) ? 0 : item.DurationByCar);
+                        }
+                        else
+                        {
+                            dgvAttractions.Rows.Add(a.Name, a.Area.Name, 0,0,0);
+                        }
                     });
                 }
             }
@@ -137,7 +167,76 @@ namespace SS_Desktop.Views
 
         private void closeBtn_Click(object sender, EventArgs e)
         {
+            if (checkEmptyAndWrongFields())
+            {
+                Item item = SetItemValues();
+                this.item1 = item;
 
+                List<ItemAmenity> itemAmenities = new List<ItemAmenity>();
+                foreach (DataGridViewRow row in dgvAmenities.Rows)
+                {
+                    bool check = (bool)row.Cells[2].Value;
+                    if (check)
+                    {
+                        ItemAmenity itemAmenity = new ItemAmenity()
+                        {
+                            ItemId = 0, // This will be set later when the item is saved
+                            AmenityId = row.Index + 1
+                        };
+                        itemAmenities.Add(itemAmenity);
+                    }
+                }
+                this.itemAmenities1 = itemAmenities;
+
+                List<ItemAttraction> itemAttractions = new List<ItemAttraction>();
+                foreach (DataGridViewRow row in dgvAttractions.Rows)
+                {
+                    if (Decimal.Parse(row.Cells[2].Value.ToString()) > 0)
+                    {
+                        ItemAttraction itemAttraction = new ItemAttraction()
+                        {
+                            AttractionId = row.Index + 1, // Assuming AttractionId starts from 1 
+                            ItemId = 0, // This will be set later when the item is saved
+                            Distance = Decimal.Parse(row.Cells[2].Value.ToString()),
+                            DurationOnFoot = (row.Cells[3].Value.ToString() != "0") ? (Int64)row.Cells[3].Value : 0,
+                            DurationByCar = (row.Cells[4].Value.ToString() != "0") ? (Int64)row.Cells[4].Value : 0,
+                        };
+                        itemAttractions.Add(itemAttraction);
+                    }
+                }
+                this.itemAttractions1 = itemAttractions;
+
+                using (var context = new AppContextDb())
+                {
+                    if (itemAttractions1.Count >= 2)
+                    {
+                        context.Entry(item1).State = EntityState.Modified; // Update the existing item
+                        context.SaveChanges(); // Save the item first to get the ItemId
+
+                        this.item1 = context.Items.FirstOrDefault(i => i.Id == item1.Id);
+                        if (itemAttractions1 != null && itemAttractions1.Count > 0 && item1.Id > 0)
+                        {
+                            foreach (var attraction in itemAttractions1)
+                            {
+                                attraction.ItemId = item1.Id; // Set the ItemId for each attraction
+                            }
+                            foreach (var amenity in itemAmenities1)
+                            {
+                                amenity.ItemId = item1.Id; // Set the ItemId for each amenity
+                            }
+                            context.ItemAmenities.UpdateRange(itemAmenities1);
+                            context.ItemAttractions.UpdateRange(itemAttractions1);
+                            context.SaveChanges(); // Save the attractions and amenities
+
+                            MessageBox.Show("Item updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("At least 2 distances to diferent attractions need to be filled", "Attractions", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            }
         }
 
         private void finishBtn_Click(object sender, EventArgs e)
@@ -181,6 +280,8 @@ namespace SS_Desktop.Views
                         context.ItemAmenities.AddRange(itemAmenities1);
                         context.ItemAttractions.AddRange(itemAttractions1);
                         context.SaveChanges(); // Save the attractions and amenities
+
+                        MessageBox.Show("Item added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else
@@ -242,29 +343,14 @@ namespace SS_Desktop.Views
             {
                 if (checkEmptyAndWrongFields())
                 {
-                    Item item = new Item()
-                    {
-                        UserId = (Int64)UserSigned.GetUserSigned().Id,
-                        ItemTypeId = (Int64)(typeCb.SelectedIndex + 1),
-                        AreaId = (Int64)areaCb.SelectedIndex + 1,
-                        Title = titleTxt.Text,
-                        Capacity = (int)capacityNumber.Value,
-                        NumberOfBeds = (int)bedsNumber.Value,
-                        NumberOfBedrooms = (int)bedroomsNumber.Value,
-                        NumberOfBathrooms = (int)bathroomsNumber.Value,
-                        ApproximateAddress = approxTxt.Text,
-                        ExactAddress = exactTxt.Text,
-                        Description = descTxt.Text,
-                        HostRules = rulesTxt.Text,
-                        MinimumNights = (int)minimumNumber.Value,
-                        MaximumNights = (int)maximumNumber.Value
-                    };
+                    Item item = SetItemValues();
                     this.item1 = item;
                     this.tabManager = true;
                     tabControl.SelectedIndex = 1; // Move to the next tab if all fields are valid
                     this.tabManager = false;
                 }
-            }else if (tabControl.SelectedIndex == 1)
+            }
+            else if (tabControl.SelectedIndex == 1)
             {
                 List<ItemAmenity> itemAmenities = new List<ItemAmenity>();
                 foreach (DataGridViewRow row in dgvAmenities.Rows)
@@ -288,6 +374,27 @@ namespace SS_Desktop.Views
                 SetFinishBtnVisible(true);
                 nextBtn.Enabled = false; // Disable the button to prevent multiple clicks
             }
+        }
+
+        private Item SetItemValues()
+        {
+            return new Item()
+            {
+                UserId = (Int64)UserSigned.GetUserSigned().Id,
+                ItemTypeId = (Int64)(typeCb.SelectedIndex + 1),
+                AreaId = (Int64)areaCb.SelectedIndex + 1,
+                Title = titleTxt.Text,
+                Capacity = (int)capacityNumber.Value,
+                NumberOfBeds = (int)bedsNumber.Value,
+                NumberOfBedrooms = (int)bedroomsNumber.Value,
+                NumberOfBathrooms = (int)bathroomsNumber.Value,
+                ApproximateAddress = approxTxt.Text,
+                ExactAddress = exactTxt.Text,
+                Description = descTxt.Text,
+                HostRules = rulesTxt.Text,
+                MinimumNights = (int)minimumNumber.Value,
+                MaximumNights = (int)maximumNumber.Value
+            };
         }
     }
 }
