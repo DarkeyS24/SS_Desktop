@@ -210,7 +210,7 @@ namespace SS_Desktop.Views
                 {
                     if (itemAttractions1.Count >= 2)
                     {
-                        context.Entry(item1).State = EntityState.Modified; // Update the existing item
+                        context.Items.Update(item1); // Update the existing item
                         context.SaveChanges(); // Save the item first to get the ItemId
 
                         this.item1 = context.Items.FirstOrDefault(i => i.Id == item1.Id);
