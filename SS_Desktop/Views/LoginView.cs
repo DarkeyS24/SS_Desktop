@@ -1,4 +1,12 @@
-﻿using System.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using SS_Desktop.Libraries.BoolSignedIn;
 using SS_Desktop.Libraries.Context;
@@ -91,7 +99,7 @@ namespace SS_Desktop.Views
                 if (string.IsNullOrEmpty(userTxt.Text) && !string.IsNullOrEmpty(pswdTxt.Text))
                 {
                     var user = context.Users.FirstOrDefault(u => u.UserName.Equals(empTxt.Text) && u.Password.Equals(pswdTxt.Text) && u.UserTypeId == 1);
-                    BoolUserSigned.SetUserSigned(user);
+                    UserSigned.SetUserSigned(user);
                     if (user != null)
                     {
                         MessageBox.Show("Login successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -111,7 +119,7 @@ namespace SS_Desktop.Views
                 else if (string.IsNullOrEmpty(empTxt.Text) && !string.IsNullOrEmpty(pswdTxt.Text))
                 {
                     var user = context.Users.FirstOrDefault(u => u.UserName.Equals(userTxt.Text) && u.Password.Equals(pswdTxt.Text) && u.UserTypeId == 2);
-                    BoolUserSigned.SetUserSigned(user);
+                    UserSigned.SetUserSigned(user);
                     if (user != null)
                     {
                         MessageBox.Show("Login successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -146,7 +154,6 @@ namespace SS_Desktop.Views
             userTxt.Text = "";
             pswdTxt.Text = "";
             showCb.Checked = false;
-            signedCb.Checked = false;
         }
 
         private void OnKeyPressedToList(object sender, KeyPressEventArgs e)

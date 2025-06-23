@@ -19,6 +19,7 @@ namespace SS_Desktop.Views
         private List<ItemAttraction> itemAttractions1 = new List<ItemAttraction>();
         private List<ItemAmenity> itemAmenities1 = new List<ItemAmenity>();
         private Item item1 = new Item();
+        private string title = "";
         private bool tabManager = false;
         private int viewAction = 0; // 0 = Add, 1 = Edit, 2 = View
         public AddEditView()
@@ -49,6 +50,11 @@ namespace SS_Desktop.Views
                                 typeCb.SelectedIndex = (int)item.ItemTypeId - 1; // Assuming ItemTypeId starts from 1
                                 areaCb.SelectedIndex = (int)item.AreaId - 1; // Assuming AreaId starts from 1
                             }
+        }
+
+        public void SetTitle(string title)
+        {
+            this.title = title;
         }
 
         public void setAmenities(Guid? guid)
@@ -97,7 +103,7 @@ namespace SS_Desktop.Views
                         var item = list.FirstOrDefault(i => i.AttractionId == a.Id);
                         if (item != null)
                         {
-                            dgvAttractions.Rows.Add(a.Name, a.Area.Name, (item.Distance != null) ? 0 : item.Distance, (item.DurationOnFoot != null) ? 0 : item.DurationOnFoot, (item.DurationByCar != null) ? 0 : item.DurationByCar);
+                            dgvAttractions.Rows.Add(a.Name, a.Area.Name, item.Distance, item.DurationOnFoot, item.DurationByCar);
                         }
                         else
                         {
@@ -176,6 +182,12 @@ namespace SS_Desktop.Views
                     item1.ItemType = context.ItemTypes.FirstOrDefault(it => it.Id == item1.ItemTypeId);
                     item1.Area = context.Areas.FirstOrDefault(it => it.Id == item1.AreaId);
                     item1.User = context.Users.FirstOrDefault(it => it.Id == item1.UserId);
+                    var list = context.Items.FirstOrDefault(i => i.Title.Equals(title));
+                    if (list != null)
+                    {
+                        item1.Guid = list.Guid;
+                        item1.Id = list.Id; // Set the Id to the existing item's Id
+                    }
                 }
 
                 List<ItemAmenity> itemAmenities = new List<ItemAmenity>();
@@ -216,7 +228,7 @@ namespace SS_Desktop.Views
                 {
                     if (itemAttractions1.Count >= 2)
                     {
-                        context.Items.Update(item1); // Update the existing item
+                        context.Entry(item1).State = EntityState.Modified; // Update the existing item
                         context.SaveChanges(); // Save the item first to get the ItemId
 
                         this.item1 = context.Items.FirstOrDefault(i => i.Id == item1.Id);
@@ -232,8 +244,8 @@ namespace SS_Desktop.Views
                                 amenity.ItemId = item1.Id; // Set the ItemId for each amenity
                                 amenity.Item = item1;
                             }
-                            context.ItemAmenities.UpdateRange(itemAmenities1);
-                            context.ItemAttractions.UpdateRange(itemAttractions1);
+                            context.ItemAmenities.UpdateRange(itemAmenities1); // Ensure the item amenities is updated
+                            context.ItemAttractions.UpdateRange(itemAttractions1); // Ensure the item attractions is updated
                             context.SaveChanges(); // Save the attractions and amenities
 
                             MessageBox.Show("Item updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -264,16 +276,20 @@ namespace SS_Desktop.Views
             List<ItemAttraction> itemAttractions = new List<ItemAttraction>();
             foreach (DataGridViewRow row in dgvAttractions.Rows)
             {
+                ItemAttraction itemAttraction;
                 if (Decimal.Parse(row.Cells[2].Value.ToString()) > 0)
                 {
-                    ItemAttraction itemAttraction = new ItemAttraction()
+                    using (var context = new AppContextDb())
                     {
-                        AttractionId = row.Index + 1, // Assuming AttractionId starts from 1 
-                        ItemId = 0, // This will be set later when the item is saved
-                        Distance = Decimal.Parse(row.Cells[2].Value.ToString()),
-                        DurationOnFoot = (row.Cells[3].Value.ToString() != "0") ? (Int64)row.Cells[3].Value : 0,
-                        DurationByCar = (row.Cells[4].Value.ToString() != "0") ? (Int64)row.Cells[4].Value : 0,
-                    };
+                        itemAttraction = new ItemAttraction()
+                        {
+                            AttractionId = context.Attractions.FirstOrDefault(a => a.Name == row.Cells[0].Value.ToString()).Id,
+                            ItemId = 0, // This will be set later when the item is saved
+                            Distance = Decimal.Parse(row.Cells[2].Value.ToString()),
+                            DurationOnFoot = (row.Cells[3].Value.ToString() != "0") ? (Int64)row.Cells[3].Value : 0,
+                            DurationByCar = (row.Cells[4].Value.ToString() != "0") ? (Int64)row.Cells[4].Value : 0,
+                        };
+                    }
                     itemAttractions.Add(itemAttraction);
                 }
             }
@@ -291,17 +307,19 @@ namespace SS_Desktop.Views
                     context.SaveChanges(); // Save the item first to get the ItemId
 
                     this.item1 = context.Items.FirstOrDefault(i => i.Guid == item1.Guid);
-                    if (itemAttractions1 != null && itemAttractions1.Count > 0 && item1.Id > 0)
+                    if (item1.Id > 0)
                     {
                         foreach (var attraction in itemAttractions1)
                         {
                             attraction.ItemId = item1.Id; // Set the ItemId for each attraction
                             attraction.Item = item1;
+                            attraction.Attraction = context.Attractions.FirstOrDefault(a => a.Id == attraction.AttractionId); // Ensure the attraction is loaded
                         }
                         foreach (var amenity in itemAmenities1)
                         {
                             amenity.ItemId = item1.Id; // Set the ItemId for each amenity
                             amenity.Item = item1;
+                            amenity.Amenity = context.Amenities.FirstOrDefault(a => a.Id == amenity.AmenityId); // Ensure the amenity is loaded
                         }
                         context.ItemAmenities.AddRange(itemAmenities1);
                         context.ItemAttractions.AddRange(itemAttractions1);
@@ -394,13 +412,17 @@ namespace SS_Desktop.Views
                 foreach (DataGridViewRow row in dgvAmenities.Rows)
                 {
                     bool check = (bool)row.Cells[2].Value;
+                    ItemAmenity itemAmenity;
                     if (check)
                     {
-                        ItemAmenity itemAmenity = new ItemAmenity()
+                        using (var context = new AppContextDb())
                         {
-                            ItemId = 0, // This will be set later when the item is saved
-                            AmenityId = row.Index + 1 
-                        };
+                            itemAmenity = new ItemAmenity()
+                            {
+                                ItemId = 0, // This will be set later when the item is saved
+                                AmenityId = context.Amenities.FirstOrDefault(a => a.Name == row.Cells[2].Value.ToString()).Id
+                            };
+                        }
                         itemAmenities.Add(itemAmenity);
                     }
                 }

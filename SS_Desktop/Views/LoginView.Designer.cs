@@ -5,7 +5,7 @@
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private System.ComponentModel.IContainer comp = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -13,9 +13,9 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && (comp != null))
             {
-                components.Dispose();
+                comp.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -45,11 +45,10 @@
             label5 = new Label();
             createLink = new LinkLabel();
             pictureBox1 = new PictureBox();
-            registerView1 = new RegisterView();
-            registerView2 = new RegisterView();
-            termsView1 = new TermsView();
+            addEditView2 = new AddEditView();
             listView1 = new ListView();
-            addEditView1 = new AddEditView();
+            termsView1 = new TermsView();
+            registerView1 = new RegisterView();
             panel2.SuspendLayout();
             panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
@@ -173,7 +172,6 @@
             // exitBtn
             // 
             exitBtn.Font = new Font("Open Sans", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            exitBtn.Image = (Image)resources.GetObject("exitBtn.Image");
             exitBtn.ImageAlign = ContentAlignment.MiddleLeft;
             exitBtn.Location = new Point(306, 485);
             exitBtn.Name = "exitBtn";
@@ -185,7 +183,6 @@
             // loginBtn
             // 
             loginBtn.Font = new Font("Open Sans", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            loginBtn.Image = (Image)resources.GetObject("loginBtn.Image");
             loginBtn.ImageAlign = ContentAlignment.MiddleLeft;
             loginBtn.Location = new Point(485, 485);
             loginBtn.Name = "loginBtn";
@@ -238,46 +235,38 @@
             pictureBox1.TabIndex = 5;
             pictureBox1.TabStop = false;
             // 
-            // registerView1
+            // addEditView2
             // 
-            registerView1.Location = new Point(142, 280);
-            registerView1.Name = "registerView1";
-            registerView1.Size = new Size(8, 8);
-            registerView1.TabIndex = 6;
+            addEditView2.BackColor = Color.White;
+            addEditView2.Location = new Point(-3, 0);
+            addEditView2.Name = "addEditView2";
+            addEditView2.Size = new Size(960, 598);
+            addEditView2.TabIndex = 6;
+            addEditView2.Visible = false;
             // 
-            // registerView2
+            // listView1
             // 
-            registerView2.Location = new Point(1, -2);
-            registerView2.Name = "registerView2";
-            registerView2.Size = new Size(955, 599);
-            registerView2.TabIndex = 7;
-            registerView2.Visible = false;
+            listView1.Location = new Point(-3, 0);
+            listView1.Name = "listView1";
+            listView1.Size = new Size(960, 598);
+            listView1.TabIndex = 7;
+            listView1.Visible = false;
             // 
             // termsView1
             // 
-            termsView1.BorderStyle = BorderStyle.FixedSingle;
-            termsView1.Location = new Point(279, 25);
+            termsView1.Location = new Point(257, 38);
             termsView1.Name = "termsView1";
             termsView1.Size = new Size(436, 474);
             termsView1.TabIndex = 8;
             termsView1.Visible = false;
             // 
-            // listView1
+            // registerView1
             // 
-            listView1.Location = new Point(-2, -2);
-            listView1.Name = "listView1";
-            listView1.Size = new Size(964, 599);
-            listView1.TabIndex = 9;
-            listView1.Visible = false;
-            // 
-            // addEditView1
-            // 
-            addEditView1.BackColor = Color.White;
-            addEditView1.Location = new Point(1, -2);
-            addEditView1.Name = "addEditView1";
-            addEditView1.Size = new Size(1194, 755);
-            addEditView1.TabIndex = 10;
-            addEditView1.Visible = false;
+            registerView1.Location = new Point(-3, 0);
+            registerView1.Name = "registerView1";
+            registerView1.Size = new Size(960, 596);
+            registerView1.TabIndex = 9;
+            registerView1.Visible = false;
             // 
             // LoginView
             // 
@@ -285,11 +274,10 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(957, 597);
-            Controls.Add(addEditView1);
-            Controls.Add(listView1);
-            Controls.Add(termsView1);
-            Controls.Add(registerView2);
             Controls.Add(registerView1);
+            Controls.Add(termsView1);
+            Controls.Add(listView1);
+            Controls.Add(addEditView2);
             Controls.Add(pictureBox1);
             Controls.Add(label1);
             Controls.Add(panel3);
@@ -325,9 +313,9 @@
         private Label label5;
         private PictureBox pictureBox1;
         private RegisterView registerView1;
-        private RegisterView registerView2;
         private TermsView termsView1;
-        private ListView listView1;
         private AddEditView addEditView1;
+        private AddEditView addEditView2;
+        private ListView listView1;
     }
 }

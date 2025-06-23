@@ -182,7 +182,7 @@
             dgvOwners.RowHeadersWidth = 51;
             dgvOwners.Size = new Size(825, 240);
             dgvOwners.TabIndex = 1;
-            dgvOwners.CellContentClick += dgvOwners_CellContentClick;
+            dgvOwners.CellContentClick += OnCellContentClickToEdit;
             // 
             // itemTitle
             // 

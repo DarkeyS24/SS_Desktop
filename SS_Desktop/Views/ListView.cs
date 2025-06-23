@@ -65,7 +65,7 @@ namespace SS_Desktop.Views
 
         }
 
-        private void dgvOwners_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void OnCellContentClickToEdit(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 4)
             {
@@ -86,6 +86,7 @@ namespace SS_Desktop.Views
                         addEdit?.SetCancelBtnVisible(false); // Hide cancel button
                         addEdit?.SetCloseBtnVisible(true); // Show close button
                         addEdit?.SetFinishBtnVisible(false); // Hide finish button
+                        addEdit?.SetTitle(dgvOwners.Rows[e.RowIndex].Cells[0].Value.ToString());
                         addEdit?.SetAttractions(item.Guid);
                         addEdit?.setAmenities(item.Guid);
                         addEdit?.SetEditFields(item);

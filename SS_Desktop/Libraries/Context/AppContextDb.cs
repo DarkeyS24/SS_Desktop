@@ -12,7 +12,7 @@ namespace SS_Desktop.Libraries.Context
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            base.OnConfiguring(optionsBuilder.UseSqlServer("Server=localhost;User Id=sa;Password=sql;TrustServerCertificate=true"));
+            base.OnConfiguring(optionsBuilder.UseSqlServer("Server=localhost;Database=SessionNumber1;User Id=sa;Password=sql;TrustServerCertificate=true"));
         }
 
         public DbSet<User> Users { get; set; }
