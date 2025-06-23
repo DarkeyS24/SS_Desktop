@@ -171,6 +171,12 @@ namespace SS_Desktop.Views
             {
                 Item item = SetItemValues();
                 this.item1 = item;
+                using (var context = new AppContextDb())
+                {
+                    item1.ItemType = context.ItemTypes.FirstOrDefault(it => it.Id == item1.ItemTypeId);
+                    item1.Area = context.Areas.FirstOrDefault(it => it.Id == item1.AreaId);
+                    item1.User = context.Users.FirstOrDefault(it => it.Id == item1.UserId);
+                }
 
                 List<ItemAmenity> itemAmenities = new List<ItemAmenity>();
                 foreach (DataGridViewRow row in dgvAmenities.Rows)
@@ -219,16 +225,30 @@ namespace SS_Desktop.Views
                             foreach (var attraction in itemAttractions1)
                             {
                                 attraction.ItemId = item1.Id; // Set the ItemId for each attraction
+                                attraction.Item = item1;
                             }
                             foreach (var amenity in itemAmenities1)
                             {
                                 amenity.ItemId = item1.Id; // Set the ItemId for each amenity
+                                amenity.Item = item1;
                             }
                             context.ItemAmenities.UpdateRange(itemAmenities1);
                             context.ItemAttractions.UpdateRange(itemAttractions1);
                             context.SaveChanges(); // Save the attractions and amenities
 
                             MessageBox.Show("Item updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            Form form = this.Parent as Form;
+                            if (form != null)
+                            {
+                                LoginView login = form as LoginView;
+                                ListView listView = login.Controls.OfType<ListView>().FirstOrDefault();
+                                var list = login.getItemList();
+                                var ownerList = login.getItemListByUserId(UserSigned.GetUserSigned().Id);
+                                var numId = UserSigned.GetUserSigned().UserTypeId;
+                                listView.SetDataGridView(list, ownerList, (numId == 1)?1:2);
+                                listView.Visible = true;
+                                this.Visible = false;
+                            }
                         }
                     }
                     else
@@ -263,6 +283,10 @@ namespace SS_Desktop.Views
             {
                 if (itemAttractions1.Count >= 2)
                 {
+                    item1.ItemType = context.ItemTypes.FirstOrDefault(it => it.Id == item1.ItemTypeId);
+                    item1.Area = context.Areas.FirstOrDefault(it => it.Id == item1.AreaId);
+                    item1.User = context.Users.FirstOrDefault(it => it.Id == item1.UserId);
+
                     context.Items.Add(item1);
                     context.SaveChanges(); // Save the item first to get the ItemId
 
@@ -272,16 +296,30 @@ namespace SS_Desktop.Views
                         foreach (var attraction in itemAttractions1)
                         {
                             attraction.ItemId = item1.Id; // Set the ItemId for each attraction
+                            attraction.Item = item1;
                         }
                         foreach (var amenity in itemAmenities1)
                         {
                             amenity.ItemId = item1.Id; // Set the ItemId for each amenity
+                            amenity.Item = item1;
                         }
                         context.ItemAmenities.AddRange(itemAmenities1);
                         context.ItemAttractions.AddRange(itemAttractions1);
                         context.SaveChanges(); // Save the attractions and amenities
 
                         MessageBox.Show("Item added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        Form form = this.Parent as Form;
+                        if (form != null)
+                        {
+                            LoginView login = form as LoginView;
+                            ListView listView = login.Controls.OfType<ListView>().FirstOrDefault();
+                            var list = login.getItemList();
+                            var ownerList = login.getItemListByUserId(UserSigned.GetUserSigned().Id);
+                            var numId = UserSigned.GetUserSigned().UserTypeId;
+                            listView.SetDataGridView(list, ownerList, (numId == 1) ? 1 : 2);
+                            listView.Visible = true;
+                            this.Visible = false;
+                        }
                     }
                 }
                 else

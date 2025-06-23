@@ -1,6 +1,13 @@
-﻿using System.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
-using SS_Desktop.Libraries.BoolSignedIn;
 using SS_Desktop.Libraries.Context;
 using SS_Desktop.Libraries.SignedIn;
 using SS_Desktop.Models;
@@ -14,7 +21,7 @@ namespace SS_Desktop.Views
         public LoginView()
         {
             InitializeComponent();
-            if (BoolUserSigned.GetUserSigned() != null && BoolUserSigned.GetUserSigned() == 1)
+            if (UserSigned.GetUserSigned != null && signed == 1)
             {
                 var user = UserSigned.GetUserSigned();
                 if (user != null)
@@ -48,7 +55,6 @@ namespace SS_Desktop.Views
         {
             CheckBox check = sender as CheckBox;
             signed = check.Checked ? 1 : 0; // Set signed to 1 if checked, otherwise 0
-            BoolUserSigned.SetUserSigned(signed);
         }
 
         private void createLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -91,7 +97,7 @@ namespace SS_Desktop.Views
                 if (string.IsNullOrEmpty(userTxt.Text) && !string.IsNullOrEmpty(pswdTxt.Text))
                 {
                     var user = context.Users.FirstOrDefault(u => u.UserName.Equals(empTxt.Text) && u.Password.Equals(pswdTxt.Text) && u.UserTypeId == 1);
-                    BoolUserSigned.SetUserSigned(user);
+                    UserSigned.SetUserSigned(user);
                     if (user != null)
                     {
                         MessageBox.Show("Login successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -111,7 +117,7 @@ namespace SS_Desktop.Views
                 else if (string.IsNullOrEmpty(empTxt.Text) && !string.IsNullOrEmpty(pswdTxt.Text))
                 {
                     var user = context.Users.FirstOrDefault(u => u.UserName.Equals(userTxt.Text) && u.Password.Equals(pswdTxt.Text) && u.UserTypeId == 2);
-                    BoolUserSigned.SetUserSigned(user);
+                    UserSigned.SetUserSigned(user);
                     if (user != null)
                     {
                         MessageBox.Show("Login successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
